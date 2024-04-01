@@ -1,5 +1,6 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
   selector: 'app-chat',
@@ -9,7 +10,7 @@ import { Router } from '@angular/router';
 export class ChatComponent implements OnInit, AfterViewChecked {
 
 
-  //chatService = inject(/*ChatService*/);
+  chatService = inject(ChatService);
   inputMessage = "";
   messages: any[] = [];
   router = inject(Router);
@@ -20,15 +21,15 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
 
   ngOnInit(): void {
-    //this.chatService.messages$.subscribe(res=>{
-    //  this.messages = res;
-    //  console.log(this.messages)
-   // });
+    this.chatService.messages$.subscribe(res=>{
+      this.messages = res;
+      console.log(this.messages)
+    });
 
-    //this.chatService.connectedUsers$.subscribe(res=>{
-     // console.log(res);
+    this.chatService.connectedUsers$.subscribe(res=>{
+      console.log(res);
 
-   // })
+    })
   }
 
   ngAfterViewChecked(): void {
@@ -36,23 +37,23 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   sendMessage(){
-    //this.chatService.sendMessage(this.inputMessage)
-    //.then(()=>{
-    //  this.inputMessage = '';
-    //}).catch((err)=>{
-    ////  console.log(err);
-    //})
+    this.chatService.sendMessage(this.inputMessage)
+    .then(()=>{
+      this.inputMessage = '';
+    }).catch((err)=>{
+      console.log(err);
+    })
   }
 
   leaveChat(){
-   // this.chatService.leaveChat()
-   // .then(()=>{
-    //  this.router.navigate(['welcome']);
-    //  setTimeout(() => {
-   //     location.reload();
-    //  }, 0);
-   // }).catch((err)=>{
-   //   console.log(err);
-   // })
+    this.chatService.leaveChat()
+    .then(()=>{
+      this.router.navigate(['welcome']);
+      setTimeout(() => {
+        location.reload();
+      }, 0);
+    }).catch((err)=>{
+      console.log(err);
+    })
   }
 }
