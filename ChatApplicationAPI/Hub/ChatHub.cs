@@ -1,55 +1,53 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿using ChatApplicationAPI;
+using Microsoft.AspNetCore.SignalR;
 
-namespace ChatApplicationAPI.Hub
+public class ChatHub : Microsoft.AspNetCore.SignalR.Hub
 {
-    public class ChatHub : Microsoft.AspNetCore.SignalR.Hub
+    private readonly IDictionary<string, UserRoomConnection> _connection;
+
+    public ChatHub(IDictionary<string, UserRoomConnection> connection)
     {
-        private readonly IDictionary<string, UserRoomConnection> _connection;
+        _connection = connection;
+    }
 
-        public ChatHub(IDictionary<string, UserRoomConnection> connection)
+    public async Task JoinRoom(UserRoomConnection userConnection)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, userConnection.Room!);
+        _connection[Context.ConnectionId] = userConnection;
+        await Clients.Group(userConnection.Room!)
+            .SendAsync("ReceiveMessage", "Lets Program Bot", $"{userConnection.User} has Joined the Group", DateTime.Now);
+        await SendConnectedUser(userConnection.Room!);
+    }
+
+    public async Task SendMessage(string message)
+    {
+        if (_connection.TryGetValue(Context.ConnectionId, out UserRoomConnection userRoomConnection))
         {
-            _connection = connection;
+            await Clients.Group(userRoomConnection.Room!)
+                .SendAsync("ReceiveMessage", userRoomConnection.User, message, DateTime.Now);
         }
+    }
 
-        public async Task JoinRoom(UserRoomConnection userConnection)
+    public override Task OnDisconnectedAsync(Exception? exp)
+    {
+        if (!_connection.TryGetValue(Context.ConnectionId, out UserRoomConnection roomConnection))
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupName: userConnection.Room);
-
-            _connection[Context.ConnectionId] = userConnection;
-
-            await Clients.Group(userConnection.Room).SendAsync(method: "RecievedMessage", arg1:"Lets Program Bot", arg2:$"{userConnection.User} has Joined the Group");
-            await sendConnectedUser(userConnection.Room);
-        }
-
-        public async Task sendMessage(string message)
-        {
-            if(_connection.TryGetValue(Context.ConnectionId, out UserRoomConnection userRoomConnection))
-            {
-                await Clients.Group(userRoomConnection.Room).SendAsync(method:"Recieved Message", arg1:userRoomConnection.User, arg2:DateTime.Now);
-            }
-        }
-
-        public override Task OnDisconnectedAsync(Exception? exp)
-        {
-            if(!_connection.TryGetValue(Context.ConnectionId, out UserRoomConnection roomConnection))
-            {
-                return base.OnDisconnectedAsync(exp);
-            }
-            Clients.Group(roomConnection.Room!).SendAsync(method: "Recieved Message", arg1: "Lets Program Bot", arg2:$"{roomConnection.User} has Left the Group");
-            sendConnectedUser(roomConnection.Room);
             return base.OnDisconnectedAsync(exp);
         }
 
-        public Task sendConnectedUser(string room)
-        {
-            var users = _connection.Values
-                                   .Where(u => u.Room == room)
-                                   .Select(s => s.User)
-                                   .ToList(); // Convert to list if Clients.Group requires a list, otherwise remove this line
-
-            return Clients.Group(room).SendAsync("ConnectedUser", users);
-        }
+        _connection.Remove(Context.ConnectionId);
+        Clients.Group(roomConnection.Room!)
+            .SendAsync("ReceiveMessage", "Lets Program bot", $"{roomConnection.User} has Left the Group", DateTime.Now);
+        SendConnectedUser(roomConnection.Room!);
+        return base.OnDisconnectedAsync(exp);
     }
+
+    public Task SendConnectedUser(string room)
+    {
+        var users = _connection.Values
+            .Where(u => u.Room == room)
+            .Select(s => s.User);
+        return Clients.Group(room).SendAsync("ConnectedUser", users);
+    }
+
 }

@@ -1,22 +1,47 @@
 .btn-color {
-    background-color: #0e1c36;
-    color: #fff;
-  
-  }
-  
-  .profile-image-pic {
-    height: 200px;
-    width: 200px;
-    object-fit: cover;
-  }
-  
-  
-  
-  .cardbody-color {
-    background-color: #52ACFF;
-    background-image: linear-gradient(180deg, #52ACFF 25%, #FFE32C 100%);
-  }
-  
-  a {
-    text-decoration: none;
-  }
+  background-color: #ffcc00; /* Bright Yellow */
+  color: #4c4c4c; /* Dark Grey */
+  padding: 12px 24px;
+  border: 2px solid #4c4c4c; /* Dark Grey */
+  border-radius: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-color:hover {
+  background-color: #ff8c00; /* Dark Orange */
+  color: #ffffff; /* White */
+}
+
+.profile-image-pic {
+  height: 250px;
+  width: 250px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 5px solid #ffcc00; /* Bright Yellow */
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3); /* Darker shadow */
+}
+
+.cardbody-color {
+  background-color: #5a189a; /* Rich Purple */
+  background-image: linear-gradient(135deg, #5a189a 0%, #00c2cb 100%); /* Gradient from Purple to Cyan */
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Light shadow */
+  color: #ffffff; /* White text color */
+}
+
+a {
+  text-decoration: none;
+  color: #00c2cb; /* Cyan */
+}
+
+a:hover {
+  color: #ff8c00; /* Dark Orange */
+}
+
+

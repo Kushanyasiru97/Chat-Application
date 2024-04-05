@@ -1,5 +1,4 @@
 using ChatApplicationAPI;
-using ChatApplicationAPI.Hub;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSignalR();
-builder.Services.AddSingleton<IDictionary<string, UserRoomConnection>>(IServiceProvider => new Dictionary<string, UserRoomConnection>());
+builder.Services.AddSingleton<IDictionary<string, UserRoomConnection>>(opt =>
+    new Dictionary<string, UserRoomConnection>());
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
 
 var app = builder.Build();
 
@@ -22,11 +34,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
-
-//app.UseAuthorization();
-
-app.UseEndpoints(endpoint => { endpoint.MapHub<ChatHub>(pattern: "/chat"); });
+app.UseRouting();
+app.UseCors();
+app.UseEndpoints(endpoint =>
+{
+    endpoint.MapHub<ChatHub>("/chat");
+});
 
 app.MapControllers();
 
