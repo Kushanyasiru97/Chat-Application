@@ -1,6 +1,3 @@
-Here's a README file based on the paragraph you provided:
-
----
 
 # Chat Application
 
